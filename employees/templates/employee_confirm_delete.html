@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Employee - Employee Management System{% endblock %}
+
+{% block page_header %}Delete Employee{% endblock %}
+{% block page_subtitle %}Confirm profile removal from the system database.{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-6">
+        <div class="premium-card border-danger">
+            <div class="d-flex align-items-center gap-3 text-danger mb-4">
+                <i class="bi bi-exclamation-triangle-fill" style="font-size: 2.5rem;"></i>
+                <div>
+                    <h5 class="fw-bold mb-1">Confirm Permanent Deletion</h5>
+                    <p class="text-muted m-0">This action is irreversible and will delete all files related to this record.</p>
+                </div>
+            </div>
+
+            <div class="alert alert-light border mb-4 p-3" style="border-radius: var(--radius-md);">
+                <div class="small text-muted mb-1">Employee Details</div>
+                <div class="fw-bold text-dark fs-5">{{ employee.full_name }}</div>
+                <div class="text-muted small">Employee ID: {{ employee.employee_id }} | Department: {{ employee.get_department_display }}</div>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger py-2 px-4 d-flex align-items-center gap-2" style="border-radius: var(--radius-md); font-weight: 500;">
+                        <i class="bi bi-trash-fill"></i> Yes, Delete Employee
+                    </button>
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline-custom py-2 px-4">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
