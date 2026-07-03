@@ -12,4 +12,4 @@ echo "🗄️ Running database migrations..."
 python manage.py migrate
 
 echo "👤 Checking/Creating default administrator..."
-python employees/create_superuser.py
+python create_admin.py
