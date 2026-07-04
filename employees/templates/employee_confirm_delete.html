@@ -7,31 +7,43 @@
 
 {% block content %}
 <div class="row">
-    <div class="col-lg-6">
-        <div class="premium-card border-danger">
-            <div class="d-flex align-items-center gap-3 text-danger mb-4">
-                <i class="bi bi-exclamation-triangle-fill" style="font-size: 2.5rem;"></i>
-                <div>
-                    <h5 class="fw-bold mb-1">Confirm Permanent Deletion</h5>
-                    <p class="text-muted m-0">This action is irreversible and will delete all files related to this record.</p>
+    <div style="max-width: 550px; margin: 2rem auto; width: 100%;">
+        <div class="premium-card">
+            <div class="modal-header-accent danger" style="margin: -1.75rem -1.75rem 1.5rem -1.75rem; border-top-left-radius: var(--radius-lg); border-top-right-radius: var(--radius-lg);"></div>
+            
+            <div style="display: flex; gap: 1.25rem; align-items: flex-start; margin-bottom: 1.5rem;">
+                <div class="modal-icon-circle danger" style="width: 56px; height: 56px; font-size: 1.75rem;">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div style="flex-grow: 1;">
+                    <h5 class="card-title" style="font-size: 1.25rem; margin-bottom: 0.25rem;">Confirm Permanent Deletion</h5>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
+                        This action is irreversible. The employee record, payroll mapping, and administrative roles will be permanently deleted from the database.
+                    </p>
                 </div>
             </div>
 
-            <div class="alert alert-light border mb-4 p-3" style="border-radius: var(--radius-md);">
-                <div class="small text-muted mb-1">Employee Details</div>
-                <div class="fw-bold text-dark fs-5">{{ employee.full_name }}</div>
-                <div class="text-muted small">Employee ID: {{ employee.employee_id }} | Department: {{ employee.get_department_display }}</div>
+            <div class="modal-info-card text-danger" style="margin-bottom: 1.75rem;">
+                <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 0.25rem;">
+                    Employee Details
+                </div>
+                <div style="font-size: 1.1rem; font-weight: 700; color: var(--secondary); margin-bottom: 0.25rem;">
+                    {{ employee.full_name }}
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-secondary);">
+                    ID: <strong>{{ employee.employee_id }}</strong> &bull; Department: <strong>{{ employee.get_department_display }}</strong>
+                </div>
             </div>
 
             <form method="POST">
                 {% csrf_token %}
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-danger py-2 px-4 d-flex align-items-center gap-2" style="border-radius: var(--radius-md); font-weight: 500;">
-                        <i class="bi bi-trash-fill"></i> Yes, Delete Employee
-                    </button>
-                    <a href="{% url 'dashboard' %}" class="btn btn-outline-custom py-2 px-4">
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline" style="min-width: 110px;">
                         Cancel
                     </a>
+                    <button type="submit" class="btn btn-danger" style="min-width: 140px;">
+                        <i class="fa-solid fa-trash-can"></i> Yes, Delete
+                    </button>
                 </div>
             </form>
         </div>

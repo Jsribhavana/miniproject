@@ -5,26 +5,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Employee Management System{% endblock %}</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <!-- Custom Style -->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <!-- Font Awesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=1.2">
 </head>
 <body>
 
-    <!-- Toast Notifications -->
+    <!-- Global Toast Notifications Container -->
     <div class="toast-container-custom">
         {% if messages %}
             {% for message in messages %}
                 <div class="alert-custom alert-custom-{% if message.tags == 'error' %}error{% else %}{{ message.tags }}{% endif %}">
                     {% if message.tags == 'success' %}
-                        <i class="bi bi-check-circle-fill"></i>
+                        <i class="fa-solid fa-circle-check"></i>
                     {% elif message.tags == 'error' or message.tags == 'danger' %}
-                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                    {% elif message.tags == 'warning' %}
+                        <i class="fa-solid fa-triangle-exclamation"></i>
                     {% else %}
-                        <i class="bi bi-info-circle-fill"></i>
+                        <i class="fa-solid fa-circle-info"></i>
                     {% endif %}
                     <div>{{ message }}</div>
                 </div>
@@ -33,78 +33,253 @@
     </div>
 
     {% if user.is_authenticated %}
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <a href="{% url 'dashboard' %}" class="brand">
-                <i class="bi bi-people-fill text-primary"></i>
-                <span>EMS Admin</span>
-            </a>
-            
-            <ul class="sidebar-menu">
-                <li class="sidebar-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-                    <a href="{% url 'dashboard' %}">
-                        <i class="bi bi-grid-1x2-fill"></i>
-                        Dashboard
+        <div class="app-container">
+            <!-- Left Sidebar Navigation -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <a href="{% url 'dashboard' %}" class="sidebar-brand">
+                        <i class="fa-solid fa-people-roof"></i>
+                        <span>EMS Portal</span>
                     </a>
-                </li>
-                <li class="sidebar-item {% if request.resolver_match.url_name == 'employee_add' %}active{% endif %}">
-                    <a href="{% url 'employee_add' %}">
-                        <i class="bi bi-person-plus-fill"></i>
-                        Add Employee
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="/admin/" target="_blank">
-                        <i class="bi bi-shield-lock-fill"></i>
-                        Django Admin
-                    </a>
-                </li>
-            </ul>
+                </div>
+                
+                <ul class="sidebar-menu">
+                    <li class="sidebar-item {% if request.resolver_match.url_name == 'dashboard' and not request.GET.department and not request.GET.status %}active{% endif %}">
+                        <a href="{% url 'dashboard' %}">
+                            <i class="fa-solid fa-chart-pie"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="{% url 'dashboard' %}">
+                            <i class="fa-solid fa-users"></i>
+                            <span>Employees</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item {% if request.resolver_match.url_name == 'employee_add' %}active{% endif %}">
+                        <a href="{% url 'employee_add' %}">
+                            <i class="fa-solid fa-user-plus"></i>
+                            <span>Add Employee</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="javascript:void(0)" onclick="openActionModal('departments')">
+                            <i class="fa-solid fa-building"></i>
+                            <span>Departments</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="javascript:void(0)" onclick="openActionModal('attendance')">
+                            <i class="fa-solid fa-clipboard-user"></i>
+                            <span>Attendance</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="javascript:void(0)" onclick="openActionModal('reports')">
+                            <i class="fa-solid fa-chart-line"></i>
+                            <span>Reports</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="javascript:void(0)" onclick="openActionModal('settings')">
+                            <i class="fa-solid fa-sliders"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="/admin/" target="_blank">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <span>Django Admin</span>
+                        </a>
+                    </li>
+                </ul>
 
-            <div class="sidebar-footer">
-                <div class="user-profile">
-                    <div class="user-avatar">
-                        {{ user.username|slice:":1"|upper }}
+                <div class="sidebar-footer">
+                    <div class="sidebar-user">
+                        <div class="sidebar-avatar">
+                            {{ user.username|slice:":1"|upper }}
+                        </div>
+                        <div class="sidebar-user-info">
+                            <span class="username">{{ user.username }}</span>
+                            <span class="userrole">Administrator</span>
+                        </div>
                     </div>
-                    <div class="user-info">
-                        <span class="name">{{ user.username }}</span>
-                        <span class="role">Administrator</span>
+                    <a href="{% url 'logout' %}" class="sidebar-logout-btn">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </aside>
+
+            <!-- Fixed Top Navbar & Main Content Container -->
+            <div style="flex-grow:1; display:flex; flex-direction:column; min-height:100vh;">
+                <!-- Fixed Navbar -->
+                <header class="top-navbar">
+                    <div class="navbar-left">
+                        <button class="menu-toggle-btn" id="sidebar-toggle" title="Toggle Sidebar">
+                            <i class="fa-solid fa-bars"></i>
+                        </button>
+                        <a href="{% url 'dashboard' %}" class="navbar-brand-mobile">
+                            <i class="fa-solid fa-people-roof me-1"></i> EMS
+                        </a>
+                        <div class="page-header-info">
+                            <h1 class="page-title">{% block page_header %}Dashboard{% endblock %}</h1>
+                            <span class="page-subtitle">{% block page_subtitle %}Manage your organization's staff profiles efficiently.{% endblock %}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="navbar-right">
+                        <button class="theme-toggle-btn" id="theme-toggle" title="Toggle Dark/Light Mode">
+                            <i class="fa-solid fa-moon"></i>
+                        </button>
+                        <button class="nav-action-btn" onclick="openActionModal('reports')" title="Generate Reports">
+                            <i class="fa-solid fa-circle-down"></i>
+                        </button>
+                        <div class="user-profile-dropdown" onclick="openActionModal('settings')">
+                            <div class="user-profile-btn">
+                                <div class="navbar-avatar">
+                                    {{ user.username|slice:":1"|upper }}
+                                </div>
+                                <span>{{ user.username }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Page Content Block -->
+                <main class="main-content">
+                    {% block content %}{% endblock %}
+                    
+                    <!-- System Footer -->
+                    <footer class="system-footer">
+                        <div class="footer-left">
+                            &copy; 2026 EMS Portal. All rights reserved. Developed under Django Framework.
+                        </div>
+                        <div class="footer-right">
+                            <ul class="footer-links">
+                                <li><a href="javascript:void(0)" onclick="window.showNotification('Privacy Policy: All data is saved on local databases and encrypted.', 'info')">Privacy Policy</a></li>
+                                <li><a href="javascript:void(0)" onclick="window.showNotification('Contact Admin: admin@company.com', 'info')">Contact Admin</a></li>
+                            </ul>
+                            <ul class="footer-socials">
+                                <li><a href="#" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a></li>
+                                <li><a href="#" title="GitHub"><i class="fa-brands fa-github"></i></a></li>
+                                <li><a href="#" title="Twitter"><i class="fa-brands fa-twitter"></i></a></li>
+                            </ul>
+                        </div>
+                    </footer>
+                </main>
+            </div>
+        </div>
+
+        <!-- ==========================================================================
+           MODALS & OVERLAYS SYSTEM (RENDERED GLOBALLY IN BASE IF LOGGED IN)
+           ========================================================================== -->
+        
+        <!-- 1. Employee Details Drawer overlay and box -->
+        <div class="details-drawer-overlay" id="details-drawer-overlay"></div>
+        <aside class="details-drawer" id="details-drawer">
+            <div class="drawer-header">
+                <h3>Employee Profile Details</h3>
+                <button class="drawer-close-btn" id="drawer-close-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="drawer-body">
+                <div class="drawer-profile-header">
+                    <div class="drawer-large-avatar" id="dr-avatar">JD</div>
+                    <h4 class="drawer-name" id="dr-name">John Doe</h4>
+                    <span class="drawer-designation" id="dr-designation">Senior Software Engineer</span>
+                    <span class="badge" id="dr-status">Active</span>
+                </div>
+                
+                <div class="drawer-details-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Employee ID</span>
+                        <span class="detail-val" id="dr-id">EMP102</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Email Address</span>
+                        <span class="detail-val" id="dr-email">john.doe@company.com</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Phone Number</span>
+                        <span class="detail-val" id="dr-phone">+1 (555) 019-2834</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Department</span>
+                        <span class="detail-val" id="dr-department">Engineering</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Monthly Salary</span>
+                        <span class="detail-val" id="dr-salary">$5,000.00</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Date of Joining</span>
+                        <span class="detail-val" id="dr-date-joined">2023-05-15</span>
                     </div>
                 </div>
-                <a href="{% url 'logout' %}" class="btn btn-outline-danger w-100 btn-sm d-flex align-items-center justify-content-center gap-2" style="border-radius: var(--radius-md);">
-                    <i class="bi bi-box-arrow-right"></i> Logout
+            </div>
+            <div class="drawer-footer">
+                <a href="#" class="btn btn-outline" id="dr-edit-btn">
+                    <i class="fa-solid fa-user-pen"></i> Edit Profile
                 </a>
+                <button class="btn btn-danger delete-trigger" id="dr-delete-btn" data-url="" data-name="" data-id="">
+                    <i class="fa-solid fa-trash-can"></i> Delete
+                </button>
             </div>
         </aside>
 
-        <!-- Main Content Wrapper -->
-        <main class="main-content">
-            <!-- Top Navbar for Mobile/Dashboard details -->
-            <div class="top-navbar">
-                <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-outline-secondary d-lg-none" id="sidebar-toggle">
-                        <i class="bi bi-list"></i>
-                    </button>
-                    <div class="page-title">
-                        <h1>{% block page_header %}Dashboard{% endblock %}</h1>
-                        <p>{% block page_subtitle %}Manage your organization's staff profiles efficiently.{% endblock %}</p>
+        <!-- 2. Custom Delete Confirmation Modal overlay and box -->
+        <div class="custom-modal-overlay" id="delete-modal-overlay">
+            <div class="custom-modal" id="delete-modal">
+                <div class="modal-header-accent danger"></div>
+                <div class="modal-body">
+                    <div class="modal-icon-header">
+                        <div class="modal-icon-circle danger">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <div class="modal-title">Delete Employee Record?</div>
+                    </div>
+                    <p class="modal-text">
+                        Are you sure you want to permanently delete <strong id="del-emp-name">John Doe</strong>? All database relationships, payroll files, and system permissions will be revoked.
+                    </p>
+                    <div class="modal-info-card text-danger" id="del-emp-id">
+                        Employee ID: EMP102
                     </div>
                 </div>
+                <div class="modal-actions">
+                    <button class="btn btn-outline" id="cancel-delete-btn">Cancel</button>
+                    <!-- Form submitted via global Javascript trigger to keep POST mapping -->
+                    <button class="btn btn-danger" onclick="document.getElementById('global-delete-form').submit();">
+                        Yes, Delete Employee
+                    </button>
+                </div>
             </div>
+        </div>
 
-            <!-- Block Content -->
-            {% block content %}{% endblock %}
-        </main>
+        <!-- 3. Global Action Modal overlay and box (Departments, Attendance, Reports, Settings) -->
+        <div class="custom-modal-overlay" id="global-action-overlay">
+            <div class="custom-modal" id="global-action-modal">
+                <div class="modal-header-accent"></div>
+                <div class="modal-body" id="global-modal-content">
+                    <!-- Loaded dynamically via JavaScript in main.js -->
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" id="cancel-action-btn">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden POST deletion form for dashboard JS interception -->
+        <form id="global-delete-form" method="POST" style="display: none;">
+            {% csrf_token %}
+        </form>
+
     {% else %}
         <!-- Full page layout (Login) -->
         {% block login_content %}{% endblock %}
     {% endif %}
 
-    <!-- Bootstrap Bundle with Popper JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Custom Main JS -->
-    <script src="{% static 'js/main.js' %}"></script>
+
+    <!-- Custom Main JavaScript -->
+    <script src="{% static 'js/main.js' %}?v=1.2"></script>
 </body>
 </html>
